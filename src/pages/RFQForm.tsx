@@ -1,5 +1,16 @@
+// src/pages/RFQForm.tsx
 import React, { useState } from 'react';
-import axios from '../axios'; // relative import
+import axios from '../axios';
+import {
+  Container,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  Stack,
+  Alert,
+  Box,
+} from '@mui/material';
 
 const RFQForm: React.FC = () => {
   const [title, setTitle] = useState('');
@@ -12,53 +23,97 @@ const RFQForm: React.FC = () => {
     setSuccess('');
 
     try {
-      const res = await axios.post('/rfqs', {
+      await axios.post('/rfqs', {
         title,
         notes,
         deadline,
       });
 
-      setSuccess('RFQ submitted successfully ✅');
+      setSuccess('Requisition submitted successfully ✅');
       setTitle('');
       setNotes('');
       setDeadline('');
     } catch (err) {
       console.error(err);
-      alert('Error submitting RFQ');
+      alert('❌ Error submitting requisition');
     }
   };
 
   return (
-    <div style={{ padding: 40 }}>
-      <h2>Create RFQ</h2>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        backgroundColor: '#f5f8fa',
+        py: 8,
+      }}
+    >
+      <Container maxWidth="sm">
+        <Paper elevation={3} sx={{ padding: 4, borderRadius: 3 }}>
+          <Typography
+            variant="h5"
+            fontWeight="bold"
+            gutterBottom
+            sx={{ color: '#1976d2' }}
+          >
+            Create Requisition
+          </Typography>
 
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        <input
-          type="text"
-          placeholder="RFQ Title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          required
-        />
+          <Typography variant="body2" color="text.secondary" mb={3}>
+            Fill in the details below to submit a new requisition.
+          </Typography>
 
-        <textarea
-          placeholder="Notes (optional)"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-        />
+          <form onSubmit={handleSubmit}>
+            <Stack spacing={3}>
+              <TextField
+                label="Requisition Title"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+                fullWidth
+              />
 
-        <input
-          type="datetime-local"
-          value={deadline}
-          onChange={(e) => setDeadline(e.target.value)}
-          required
-        />
+              <TextField
+                label="Notes (optional)"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                multiline
+                rows={4}
+                fullWidth
+              />
 
-        <button type="submit">Submit RFQ</button>
-      </form>
+              <TextField
+                label="Deadline"
+                type="datetime-local"
+                value={deadline}
+                onChange={(e) => setDeadline(e.target.value)}
+                required
+                fullWidth
+                InputLabelProps={{
+                  shrink: true,
+                }}
+              />
 
-      {success && <p style={{ color: 'green' }}>{success}</p>}
-    </div>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                size="large"
+                fullWidth
+                sx={{ textTransform: 'none', fontWeight: 'bold' }}
+              >
+                Submit Requisition
+              </Button>
+
+              {success && (
+                <Alert severity="success" sx={{ mt: 2 }}>
+                  {success}
+                </Alert>
+              )}
+            </Stack>
+          </form>
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 

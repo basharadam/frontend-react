@@ -1,6 +1,23 @@
 // src/pages/BuyerDashboard.tsx
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
+import {
+  Box,
+  Button,
+  Container,
+  Paper,
+  Typography,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemSecondaryAction,
+  IconButton,
+  Stack,
+  Divider,
+} from '@mui/material';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import InventoryIcon from '@mui/icons-material/Inventory';
 import axios from '../axios';
 
 interface RFQ {
@@ -14,31 +31,119 @@ const BuyerDashboard: React.FC = () => {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   useEffect(() => {
-    axios.get('/rfqs/buyer') // Laravel route that returns RFQs created by buyer
-      .then(res => setRfqs(res.data))
-      .catch(err => console.error('Failed to load RFQs', err));
+    axios
+      .get('/rfqs/buyer')
+      .then((res) => setRfqs(res.data))
+      .catch((err) => console.error('Failed to load RFQs', err));
   }, []);
 
   return (
-    <div style={{ padding: 40 }}>
-      <h2>Welcome Buyer: {user.name}</h2>
-      <p>From here, you can create and manage your RFQs.</p>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        backgroundColor: '#f5f8fa',
+        py: 8,
+      }}
+    >
+      <Container maxWidth="md">
+        <Paper
+          elevation={3}
+          sx={{
+            padding: 4,
+            borderRadius: 3,
+          }}
+        >
+          <Typography
+            variant="h5"
+            fontWeight="bold"
+            gutterBottom
+            sx={{ color: '#1976d2' }}
+          >
+            Welcome, {user.name}
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Manage your requisitions and purchase orders from here.
+          </Typography>
 
-      <Link to="/buyer/rfq">➕ Create New RFQ</Link>
-      <Link to="/buyer/po-list">📦 View POs</Link>
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} mt={4}>
+            <Button
+              variant="contained"
+              startIcon={<AddCircleIcon />}
+              component={RouterLink}
+              to="/buyer/rfq"
+              sx={{
+                textTransform: 'none',
+                px: 4,
+                py: 1.2,
+                fontWeight: 'bold',
+              }}
+            >
+              Create Requisition
+            </Button>
 
-      <h3 style={{ marginTop: 40 }}>📄 Your RFQs:</h3>
-      <ul>
-        {rfqs.map(r => (
-          <li key={r.id}>
-            {r.title} (Due: {new Date(r.deadline).toLocaleString()})
-            <Link to={`/buyer/rfq/${r.id}/bids`} style={{ marginLeft: 10 }}>
-              🔍 View Bids
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </div>
+            <Button
+              variant="outlined"
+              startIcon={<InventoryIcon />}
+              component={RouterLink}
+              to="/buyer/po-list"
+              sx={{
+                textTransform: 'none',
+                px: 4,
+                py: 1.2,
+                fontWeight: 'bold',
+              }}
+            >
+              View Purchase Orders
+            </Button>
+          </Stack>
+
+          <Divider sx={{ my: 5 }} />
+
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold' }}>
+            Your Requisitions:
+          </Typography>
+
+          {rfqs.length === 0 ? (
+            <Typography variant="body2" color="text.secondary">
+              You have not created any requisitions yet.
+            </Typography>
+          ) : (
+            <List>
+              {rfqs.map((r) => (
+                <ListItem
+                  key={r.id}
+                  sx={{
+                    border: '1px solid #e0e0e0',
+                    borderRadius: 2,
+                    mb: 1.5,
+                    backgroundColor: '#fff',
+                  }}
+                  secondaryAction={
+                    <IconButton
+                      edge="end"
+                      component={RouterLink}
+                      to={`/buyer/rfq/${r.id}/bids`}
+                      aria-label="view"
+                    >
+                      <VisibilityIcon />
+                    </IconButton>
+                  }
+                >
+                  <ListItemText
+                    primary={
+                      <Typography variant="subtitle1" fontWeight="medium">
+                        {r.title}
+                      </Typography>
+                    }
+                    secondary={`Deadline: ${new Date(r.deadline).toLocaleString()}`}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          )}
+        </Paper>
+      </Container>
+    </Box>
   );
 };
 

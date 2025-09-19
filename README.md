@@ -69,13 +69,15 @@ export default defineConfig([
 ```
 
 
-  // "name": "frontend-react",
-  // "private": true,
-  // "version": "0.0.0",
-  // "type": "module",
-  // "scripts": {
-  //   "dev": "vite",
-  //   "build": "tsc -b && vite build",
-  //   "lint": "eslint .",
-  //   "preview": "vite preview"
-  // },
+
+
+     <!-- "name": "frontend-react",
+     "private": true,
+     "version": "0.0.0",
+     "type": "module",
+     "scripts": {
+          "dev": "vite",
+          "build": "tsc -b && vite build",
+          "lint": "eslint .",
+          "preview": "vite preview"
+     }, -->

@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 // Set Laravel API base URL
-axios.defaults.baseURL = 'https://laravel-production-4d41.up.railway.app/api'; // make sure CORS is enabled on Laravel
+//axios.defaults.baseURL = 'http://127.0.0.1:8000/api'; // make sure CORS is enabled on Laravel
+ axios.defaults.baseURL = 'https://laravel-production-4d41.up.railway.app/api'; // make sure CORS is enabled on Laravel
 
 const App: React.FC = () => {
   const [data, setData] = useState<string>('');
@@ -10,7 +11,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<string>('');
 
   useEffect(() => {
-    axios.get('/test')
+    axios.get('frontend-react/test')
       .then((res) => {
         setData(res.data);
         setLoading(false);

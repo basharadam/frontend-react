@@ -20,7 +20,8 @@ const router = createBrowserRouter([
   { path: '/buyer/po-list', element: <BuyerPOList /> }, // ✅ new route
 
 
-],
+]
+,
   {
     basename: '/frontend-react', // 👈 ADD THIS
   }

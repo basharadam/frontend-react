@@ -1,5 +1,19 @@
+// src/pages/VendorDashboard.tsx
 import React, { useEffect, useState } from 'react';
 import axios from '../axios';
+import {
+  Container,
+  Typography,
+  Paper,
+  List,
+  ListItem,
+  ListItemText,
+  TextField,
+  Button,
+  Stack,
+  Divider,
+  Box,
+} from '@mui/material';
 
 interface RFQ {
   id: number;
@@ -56,86 +70,135 @@ const VendorDashboard: React.FC = () => {
     try {
       await axios.post('/vendor-po-status', { id, status });
       alert(`PO ${status}`);
-      // Refresh PO list
       axios.get(`/vendor-pos/${user.name}`).then(res => setPOs(res.data));
     } catch (err) {
       alert('❌ Failed to update status');
     }
   };
-  
 
   return (
-    <div style={{ padding: 40 }}>
-      <h2>Vendor Dashboard — {user.name}</h2>
+    <Container maxWidth="md" sx={{ mt: 5 }}>
+      <Paper elevation={3} sx={{ p: 4 }}>
+        <Typography variant="h5" gutterBottom>
+          Vendor Dashboard — {user.name}
+        </Typography>
 
-      {success && <p style={{ color: 'green' }}>{success}</p>}
-
-      {/* 🔽 Submit Bid Section */}
-      {!selected && (
-        <>
-          <h3>Available RFQs:</h3>
-          <ul>
-            {rfqs.map(r => (
-              <li key={r.id}>
-                {r.title} — Due: {new Date(r.deadline).toLocaleString()}
-                <button onClick={() => setSelected(r)} style={{ marginLeft: 10 }}>
-                  Submit Bid
-                </button>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-
-      {selected && (
-        <>
-          <h3>Submit Bid for: {selected.title}</h3>
-          <input
-            type="number"
-            placeholder="Enter price"
-            value={price}
-            onChange={e => setPrice(e.target.value)}
-          />
-          <br />
-          <textarea
-            placeholder="Comments (optional)"
-            value={comments}
-            onChange={e => setComments(e.target.value)}
-          />
-          <br />
-          <button onClick={handleSubmit}>Submit Bid</button>
-          <button onClick={() => setSelected(null)} style={{ marginLeft: 10 }}>
-            Cancel
-          </button>
-        </>
-      )}
-
-      {/* 🧾 PO Section */}
-      <div style={{ marginTop: 50 }}>
-        <h3>Purchase Orders (POs) Issued to You:</h3>
-        {pos.length === 0 ? (
-          <p>No purchase orders found.</p>
-        ) : (
-          <ul>
-          {pos.map(po => (
-            <li key={po.id}>
-              PO #{po.id} — RFQ ID: {po.rfq_id} — Amount: ${po.price} — Status: {po.status || 'pending'}
-              {po.status === 'pending' && (
-                <>
-                  <button onClick={() => handleAcknowledge(po.id, 'accepted')} style={{ marginLeft: 10 }}>
-                    ✅ Accept
-                  </button>
-                  <button onClick={() => handleAcknowledge(po.id, 'rejected')} style={{ marginLeft: 10 }}>
-                    ❌ Reject
-                  </button>
-                </>
-              )}
-            </li>
-          ))}
-        </ul>
+        {success && (
+          <Typography variant="body1" color="success.main" sx={{ mb: 2 }}>
+            {success}
+          </Typography>
         )}
-      </div>
-    </div>
+
+        {/* 🔽 Submit Bid Section */}
+        {!selected ? (
+          <>
+            <Typography variant="h6" gutterBottom>
+              Available RFQs
+            </Typography>
+            <List>
+              {rfqs.map((r) => (
+                <ListItem
+                  key={r.id}
+                  sx={{ borderBottom: '1px solid #eee' }}
+                  secondaryAction={
+                    <Button variant="outlined" onClick={() => setSelected(r)}>
+                      Submit Bid
+                    </Button>
+                  }
+                >
+                  <ListItemText
+                    primary={r.title}
+                    secondary={`Due: ${new Date(r.deadline).toLocaleString()}`}
+                  />
+                </ListItem>
+              ))}
+            </List>
+          </>
+        ) : (
+          <>
+            <Typography variant="h6" gutterBottom>
+              Submit Bid for: {selected.title}
+            </Typography>
+            <Stack spacing={2} sx={{ mt: 2 }}>
+              <TextField
+                label="Enter price"
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                required
+              />
+              <TextField
+                label="Comments (optional)"
+                multiline
+                rows={3}
+                value={comments}
+                onChange={(e) => setComments(e.target.value)}
+              />
+              <Stack direction="row" spacing={2}>
+                <Button variant="contained" onClick={handleSubmit}>
+                  Submit Bid
+                </Button>
+                <Button variant="outlined" color="error" onClick={() => setSelected(null)}>
+                  Cancel
+                </Button>
+              </Stack>
+            </Stack>
+          </>
+        )}
+
+        {/* 🧾 PO Section */}
+        <Divider sx={{ my: 4 }} />
+        <Typography variant="h6" gutterBottom>
+          📦 Purchase Orders Issued to You
+        </Typography>
+
+        {pos.length === 0 ? (
+          <Typography variant="body2">No purchase orders found.</Typography>
+        ) : (
+          <List>
+            {pos.map((po) => (
+              <ListItem
+                key={po.id}
+                sx={{
+                  borderBottom: '1px solid #eee',
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                }}
+              >
+                <Box>
+                  <Typography>
+                    <strong>PO #{po.id}</strong> — RFQ #{po.rfq_id} — Amount: ${po.price} —{' '}
+                    <strong>Status:</strong>{' '}
+                    <span style={{ textTransform: 'capitalize' }}>{po.status || 'pending'}</span>
+                  </Typography>
+                </Box>
+
+                {po.status === 'pending' && (
+                  <Stack direction="row" spacing={2} sx={{ mt: 1 }}>
+                    <Button
+                      variant="contained"
+                      color="success"
+                      size="small"
+                      onClick={() => handleAcknowledge(po.id, 'accepted')}
+                    >
+                      ✅ Accept
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      size="small"
+                      onClick={() => handleAcknowledge(po.id, 'rejected')}
+                    >
+                      ❌ Reject
+                    </Button>
+                  </Stack>
+                )}
+              </ListItem>
+            ))}
+          </List>
+        )}
+      </Paper>
+    </Container>
   );
 };
 
